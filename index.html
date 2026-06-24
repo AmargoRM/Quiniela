@@ -11,42 +11,40 @@
     <div>
       <p class="eyebrow">Fase eliminatoria · uso interno</p>
       <h1>Quiniela Mundial Oficina</h1>
-      <p>Ingresa tu nombre, número de jugador y completa tus marcadores. No necesitas GitHub, JSON ni conocimientos técnicos.</p>
+      <p>Crea tu jugador, entra con contraseña y guarda tus pronósticos de forma segura.</p>
     </div>
-    <a class="admin-link" href="admin.html">Panel admin</a>
+    <a class="admin-link" href="admin.html">Panel administrador</a>
   </header>
-
   <main>
-    <section id="loginCard" class="card login-card">
-      <h2>Entrar a mi quiniela</h2>
-      <p class="muted">Los pronósticos enviados después del cierre se guardan como tardíos y no cuentan.</p>
-      <label>Nombre<input id="playerName" autocomplete="name" placeholder="Ej. Ana Rodríguez" /></label>
-      <label>Número de jugador<input id="playerNumber" inputmode="numeric" placeholder="Ej. 12" /></label>
-      <button id="enterBtn" class="primary">Entrar a mi quiniela</button>
+    <section id="authCard" class="card login-card">
+      <div class="tabs"><button id="loginTab" class="primary">Iniciar sesión</button><button id="registerTab">Registrar jugador</button></div>
+      <div id="authNotice" class="notice hidden"></div>
+      <form id="loginForm">
+        <h2>Iniciar sesión</h2>
+        <label>Número de jugador<input id="loginNumber" inputmode="numeric" autocomplete="username" required></label>
+        <label>Contraseña<input id="loginPassword" type="password" autocomplete="current-password" required></label>
+        <button class="primary" type="submit">Entrar</button>
+      </form>
+      <form id="registerForm" class="hidden">
+        <h2>Registrar jugador</h2>
+        <label>Nombre completo<input id="registerName" autocomplete="name" required></label>
+        <label>Número de jugador<input id="registerNumber" inputmode="numeric" autocomplete="username" required></label>
+        <label>Contraseña<input id="registerPassword" type="password" autocomplete="new-password" minlength="4" required></label>
+        <label>Confirmar contraseña<input id="registerConfirm" type="password" autocomplete="new-password" minlength="4" required></label>
+        <button class="primary" type="submit">Crear jugador</button>
+      </form>
     </section>
-
     <section id="appView" class="hidden">
-      <div class="toolbar card">
-        <div><strong id="playerBadge"></strong><br><span id="deadlineText" class="muted"></span></div>
-        <div class="actions"><button id="saveBtn" class="primary">Guardar pronóstico</button><button id="reloadBtn">Actualizar</button></div>
-      </div>
+      <div class="toolbar card"><div><strong id="playerBadge"></strong><br><span id="deadlineText" class="muted"></span></div><div class="actions"><button id="viewBracketBtn">Vista llave</button><button id="viewFormBtn" class="primary">Vista formulario</button><button id="showMineBtn">Ver mi quiniela</button><button id="saveBtn" class="primary">Guardar quiniela</button><button id="logoutBtn">Cerrar sesión</button></div></div>
       <div id="notice" class="notice hidden"></div>
-      <section class="bracket-scroll card">
-        <div id="bracketCanvas" class="bracket-canvas">
-          <img id="bracketImage" src="assets/bracket.png" alt="Imagen de llave eliminatoria" />
-          <div id="bracketPlaceholder" class="bracket-placeholder hidden">Sube la imagen real como <strong>assets/bracket.png</strong></div>
-          <div id="slotLayer" class="slot-layer"></div>
-        </div>
-      </section>
+      <section id="formView" class="card"><h2>Pronóstico por partidos</h2><div id="predictionForm" class="match-cards"></div></section>
+      <section id="bracketView" class="bracket-scroll card hidden"><div id="bracketCanvas" class="bracket-canvas"><img id="bracketImage" src="assets/bracket.png" alt="Imagen de llave eliminatoria"><div id="bracketPlaceholder" class="bracket-placeholder hidden">Llave visual no disponible. Usa la vista formulario.</div><div id="slotLayer" class="slot-layer"></div></div></section>
       <section id="receipt" class="card receipt hidden"></section>
-      <section class="card">
-        <div class="section-head"><h2>Tabla de posiciones</h2><button id="leaderboardRefresh">Recalcular vista</button></div>
-        <div id="leaderboard"></div>
-      </section>
+      <section id="history" class="card"><h2>Historial de mi quiniela</h2><div id="historyRows"></div></section>
+      <section class="card"><div class="section-head"><h2>Tabla de posiciones general</h2><button id="leaderboardRefresh">Actualizar tabla</button></div><div id="leaderboard"></div></section>
       <section id="detail" class="card hidden"></section>
     </section>
   </main>
-  <script src="config.js"></script>
-  <script src="app.js"></script>
+  <script src="config.js"></script><script src="app.js"></script>
 </body>
 </html>
