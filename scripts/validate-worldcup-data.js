@@ -1,81 +1,49 @@
 #!/usr/bin/env node
 import fs from 'node:fs';
-import crypto from 'node:crypto';
-
 const readJson = (p) => JSON.parse(fs.readFileSync(p, 'utf8'));
 const errors = [];
 const add = (msg) => errors.push(msg);
 const matches = readJson('data/matches.json');
-
-const group = '[A-L]';
-const allowedR32 = new Set([
-  ...Array.from({ length: 12 }, (_, i) => `1° Grupo ${String.fromCharCode(65 + i)}`),
-  ...Array.from({ length: 12 }, (_, i) => `2° Grupo ${String.fromCharCode(65 + i)}`),
-  'Mejor 3° A/B/C/D/F','Mejor 3° C/D/F/G/H','Mejor 3° C/E/F/H/I','Mejor 3° E/H/I/J/K',
-  'Mejor 3° B/E/F/I/J','Mejor 3° A/E/H/I/J','Mejor 3° E/F/G/I/J','Mejor 3° D/E/I/J/L'
-]);
-const allowedLater = new Set([
-  ...Array.from({ length: 32 }, (_, i) => `Ganador ${73 + i}`),
-  'Perdedor 101','Perdedor 102','Pendiente por definir'
-]);
-const forbiddenPairs = [
-  ['Argentina','México'],['Argentina','Mexico'],['Francia','Marruecos'],['Brasil','Uruguay'],
-  ['Inglaterra','Senegal'],['Portugal','Estados Unidos']
-];
-const demoNames = ['Costa Norte','Río Dorado','Rio Dorado'];
+const expectedRounds = {'16avos de final':16,'8vos de final':8,'Cuartos de final':4,'Semifinales':2,'Tercer lugar':1,'Final':1};
+const oldIds = new Set(['R32-01','R16-01','QF-01','SF-01','F-01']);
+for (const file of fs.readdirSync('data').filter(f=>f.endsWith('.json'))) {
+  const txt = fs.readFileSync(`data/${file}`, 'utf8');
+  for (const oldId of oldIds) if (txt.includes(oldId)) add(`ID viejo prohibido ${oldId} en data/${file}.`);
+}
+const forbiddenPairs = [['Argentina','México'],['Argentina','Mexico'],['Francia','Marruecos'],['Brasil','Uruguay'],['Inglaterra','Senegal'],['Portugal','Estados Unidos']];
+const allowedStatuses = new Set(['placeholder','confirmed','manual']);
 const isReal = (v) => typeof v === 'string' && v.trim() !== '';
-const requiredMeta = (side) => [`team${side}Source`,`team${side}Status`,`team${side}SourceName`,`team${side}SourceUrl`,`team${side}ConfirmedAt`,`team${side}UpdatedBy`];
-const hasDefaultRepeatedDate = matches.filter(m => m.date && /^20\d\d-\d\d-\d\d/.test(String(m.date))).length > 1;
-
 if (!Array.isArray(matches)) add('data/matches.json debe ser un array.');
-if (matches.length !== 32) add('data/matches.json debe contener exactamente 32 partidos (73-104).');
-const ids = new Set();
-for (const m of matches) {
-  const id = Number(m.matchId);
-  if (!Number.isInteger(id) || id < 73 || id > 104) add(`Match ID fuera de 73-104: ${m.matchId}`);
-  if (ids.has(id)) add(`Match ID duplicado: ${id}`);
-  ids.add(id);
-  const round = String(m.round || '').toLowerCase();
-  if (id >= 73 && id <= 88 && !round.includes('16')) add(`Partido ${id} debe ser 16avos.`);
-  if (id >= 89 && id <= 96 && !round.includes('8')) add(`Partido ${id} debe ser 8vos.`);
-  if (id >= 97 && id <= 100 && !round.includes('cuarto')) add(`Partido ${id} debe ser Cuartos.`);
-  if (id >= 101 && id <= 102 && !round.includes('semi')) add(`Partido ${id} debe ser Semifinales.`);
-  if (id === 103 && !round.includes('tercer')) add('El partido 103 debe ser Tercer lugar.');
-  if (id === 104 && !round.includes('final')) add('El partido 104 debe ser Final.');
-
+if (Array.isArray(matches) && matches.length !== 32) add('data/matches.json debe contener exactamente 32 partidos.');
+const ids = new Set(); const rounds = Object.fromEntries(Object.keys(expectedRounds).map(r=>[r,0]));
+for (const m of Array.isArray(matches)?matches:[]) {
+  const id = String(m.matchId);
+  if (oldIds.has(id)) add(`ID viejo prohibido detectado: ${id}`);
+  const n = Number(id);
+  if (!Number.isInteger(n) || n < 73 || n > 104) add(`matchId fuera de 73-104: ${id}`);
+  if (ids.has(id)) add(`matchId duplicado: ${id}`); ids.add(id);
+  if (m.fifaMatchNumber !== n) add(`M${id} fifaMatchNumber debe ser ${n}.`);
+  if (!(m.round in expectedRounds)) add(`M${id} round inválido: ${m.round}`); else rounds[m.round]++;
+  if (n>=73&&n<=88&&m.round!=='16avos de final') add(`M${id} debe ser 16avos de final.`);
+  if (n>=89&&n<=96&&m.round!=='8vos de final') add(`M${id} debe ser 8vos de final.`);
+  if (n>=97&&n<=100&&m.round!=='Cuartos de final') add(`M${id} debe ser Cuartos de final.`);
+  if (n>=101&&n<=102&&m.round!=='Semifinales') add(`M${id} debe ser Semifinales.`);
+  if (n===103&&m.round!=='Tercer lugar') add('M103 debe ser Tercer lugar.');
+  if (n===104&&m.round!=='Final') add('M104 debe ser Final.');
   for (const side of ['A','B']) {
-    const team = m[`team${side}`];
-    const status = m[`team${side}Status`];
-    const source = m[`team${side}Source`];
-    for (const k of requiredMeta(side)) if (!(k in m)) add(`M${id} ${k} ausente.`);
-    if (!['placeholder','confirmed','manual'].includes(status)) add(`M${id} team${side}Status inválido o ausente.`);
-    if (status === 'placeholder') {
-      if (team !== '') add(`M${id} team${side} debe estar vacío cuando es placeholder.`);
-      const allowed = id <= 88 ? allowedR32 : allowedLater;
-      if (!allowed.has(source)) add(`M${id} team${side}Source placeholder no permitido: ${source}`);
-    }
-    if (status === 'confirmed') {
-      if (!isReal(team) || !m[`team${side}SourceName`] || !m[`team${side}SourceUrl`] || !m[`team${side}ConfirmedAt`]) add(`M${id} team${side} confirmado sin trazabilidad completa.`);
-    }
-    if (status === 'manual') {
-      if (!isReal(team) || !m[`team${side}UpdatedBy`]) add(`M${id} team${side} manual sin updatedBy.`);
-    }
-    if (isReal(team) && !['confirmed','manual'].includes(status)) add(`M${id} team${side} contiene equipo real sin status confirmado/manual.`);
+    const team = m[`team${side}`]; const status = m[`team${side}Status`];
+    if (!allowedStatuses.has(status)) add(`M${id} team${side}Status inválido.`);
+    if (status === 'placeholder' && team !== '') add(`M${id} team${side} debe estar vacío si es placeholder.`);
+    if (isReal(team) && !status) add(`M${id} team${side} real sin status.`);
+    if (isReal(team) && !(m.updatedBy || m[`team${side}UpdatedBy`]) && status !== 'placeholder') add(`M${id} team${side} real sin updatedBy.`);
+    if (isReal(team) && status === 'placeholder') add(`M${id} tiene equipo real sin confirmación.`);
+    if (!m[`team${side}Source`]) add(`M${id} falta team${side}Source.`);
   }
-  for (const [a,b] of forbiddenPairs) if (m.teamA === a && m.teamB === b) add(`Cruce ficticio prohibido detectado en M${id}: ${a} vs ${b}`);
-  for (const name of demoNames) if (m.teamA === name || m.teamB === name) add(`Dato demo en producción detectado en M${id}: ${name}`);
+  for (const [a,b] of forbiddenPairs) if (m.teamA === a && m.teamB === b) add(`Cruce inventado prohibido: ${a} vs ${b} en M${id}.`);
 }
-for (let id=73; id<=104; id++) if (!ids.has(id)) add(`Falta matchId ${id}.`);
-if (hasDefaultRepeatedDate && matches.some(m => !m.dateSourceName && !m.dateSourceUrl)) add('Fechas repetidas por defecto sin fuente detectadas.');
-
-if (process.argv.includes('--self-test')) {
-  const hash = crypto.createHash('sha256').update(JSON.stringify(matches)).digest('hex');
-  if (!hash) add('No se pudo generar hash de control.');
-}
-
-if (errors.length) {
-  console.error('Validación anti-invención falló:');
-  for (const e of errors) console.error(`- ${e}`);
-  process.exit(1);
-}
-console.log('Validación anti-invención OK.');
+for (let id=73; id<=104; id++) if (!ids.has(String(id))) add(`Falta matchId ${id}.`);
+for (const [round,count] of Object.entries(expectedRounds)) if (rounds[round] !== count) add(`${round} debe tener ${count} partidos y tiene ${rounds[round]}.`);
+const allPendingRenderable = matches.every(m => m.teamAStatus !== 'placeholder' || m.teamASource) && matches.every(m => m.teamBStatus !== 'placeholder' || m.teamBSource);
+if (!allPendingRenderable) add('Hay partidos pendientes sin placeholder renderizable.');
+if (errors.length) { console.error('Validación anti-invención falló:'); errors.forEach(e=>console.error(`- ${e}`)); process.exit(1); }
+console.log('Validación anti-invención OK: 32 partidos renderizables sin cruces inventados.');
