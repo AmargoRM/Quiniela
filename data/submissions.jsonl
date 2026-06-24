@@ -1,1 +1,0 @@
-{"timestamp":"2026-06-20T15:30:00-06:00","playerNumber":"01","playerName":"Demo 1","predictions":[{"matchId":"R16-01","teamA":"Equipo A","teamB":"Equipo B","goalsA":1,"goalsB":1,"winner":"Equipo A"},{"matchId":"R16-02","teamA":"Equipo C","teamB":"Equipo D","goalsA":1,"goalsB":2,"winner":"Equipo D"}],"source":"demo","commitHash":"demo-seed"}
