@@ -11,7 +11,7 @@
     <div>
       <p class="eyebrow">Fase eliminatoria · uso interno</p>
       <h1>Quiniela Mundial Oficina</h1>
-      <p>Crea tu jugador, entra con contraseña y guarda tus pronósticos de forma segura.</p>
+      <p>Viví una quiniela épica con alma albiceleste: potrero, gloria, camiseta y camino a la copa.</p>
     </div>
     <a class="admin-link" href="admin.html">Panel administrador</a>
   </header>
@@ -35,10 +35,10 @@
       </form>
     </section>
     <section id="appView" class="hidden">
-      <div class="toolbar card"><div><strong id="playerBadge"></strong><br><span id="deadlineText" class="muted"></span></div><div class="actions"><button id="viewBracketBtn">Vista llave</button><button id="viewFormBtn" class="primary">Vista formulario</button><button id="showMineBtn">Ver mi quiniela</button><button id="saveBtn" class="primary">Guardar quiniela</button><button id="logoutBtn">Cerrar sesión</button></div></div>
+      <div class="toolbar card"><div><p class="eyebrow">Tu camino mundialista</p><strong id="playerBadge"></strong><br><span id="deadlineText" class="muted"></span><div class="progress-wrap"><div id="progressBar"></div></div><small id="progressText" class="muted"></small> · <small id="draftStatus" class="muted">Última versión enviada</small></div><div class="actions"><button id="viewBracketBtn">Vista llave</button><button id="viewFormBtn" class="primary">Vista formulario</button><button id="showMineBtn">Ver mi quiniela</button><button id="saveBtn" class="primary">Guardar quiniela</button><button id="logoutBtn">Cerrar sesión</button></div></div>
       <div id="notice" class="notice hidden"></div>
-      <section id="formView" class="card"><h2>Pronóstico por partidos</h2><div id="predictionForm" class="match-cards"></div></section>
-      <section id="bracketView" class="bracket-scroll card hidden"><div id="bracketCanvas" class="bracket-canvas"><img id="bracketImage" src="assets/bracket.png" alt="Imagen de llave eliminatoria"><div id="bracketPlaceholder" class="bracket-placeholder hidden">Llave visual no disponible. Usa la vista formulario.</div><div id="slotLayer" class="slot-layer"></div></div></section>
+      <section id="formView" class="card"><div class="section-head"><div><p class="eyebrow">Vista formulario</p><h2>Pronóstico por partidos</h2></div><p class="muted">Elegí clasificado, marcá goles y mirá cómo avanza la llave.</p></div><div id="predictionForm" class="match-cards"></div></section>
+      <section id="bracketView" class="bracket-scroll card hidden"><div class="section-head"><div><p class="eyebrow">Vista llave</p><h2>Camino de campeones</h2></div><p class="muted">Scroll horizontal en móvil. Tocá un equipo para hacerlo avanzar.</p></div><div id="bracketCanvas" class="bracket-canvas"></div></section>
       <section id="receipt" class="card receipt hidden"></section>
       <section id="history" class="card"><h2>Historial de mi quiniela</h2><div id="historyRows"></div></section>
       <section class="card"><div class="section-head"><h2>Tabla de posiciones general</h2><button id="leaderboardRefresh">Actualizar tabla</button></div><div id="leaderboard"></div></section>
