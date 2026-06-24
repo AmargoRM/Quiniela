@@ -1,0 +1,16 @@
+{
+  "config": {"deadline":"2026-07-01T18:00:00-06:00","timezone":"America/Costa_Rica","modeLabel":"DEMO"},
+  "matches": [
+    {"matchId":"R16-01","round":"16avos","date":"","teamA":"Demo Norte","teamB":"Demo Sur","sourceLabelA":"Demo A1","sourceLabelB":"Demo B1","nextMatch":"QF-01","status":"pendiente"},
+    {"matchId":"R16-02","round":"16avos","date":"","teamA":"Demo Este","teamB":"Demo Oeste","sourceLabelA":"Demo A2","sourceLabelB":"Demo B2","nextMatch":"QF-01","status":"pendiente"},
+    {"matchId":"R16-03","round":"16avos","date":"","teamA":"Demo Azul","teamB":"Demo Verde","sourceLabelA":"Demo A3","sourceLabelB":"Demo B3","nextMatch":"QF-02","status":"pendiente"},
+    {"matchId":"R16-04","round":"16avos","date":"","teamA":"Demo Rojo","teamB":"Demo Blanco","sourceLabelA":"Demo A4","sourceLabelB":"Demo B4","nextMatch":"QF-02","status":"pendiente"},
+    {"matchId":"QF-01","round":"cuartos","date":"","teamA":"","teamB":"","sourceLabelA":"Ganador R16-01","sourceLabelB":"Ganador R16-02","nextMatch":"SF-01","status":"pendiente"},
+    {"matchId":"QF-02","round":"cuartos","date":"","teamA":"","teamB":"","sourceLabelA":"Ganador R16-03","sourceLabelB":"Ganador R16-04","nextMatch":"SF-01","status":"pendiente"},
+    {"matchId":"SF-01","round":"semifinal","date":"","teamA":"","teamB":"","sourceLabelA":"Ganador QF-01","sourceLabelB":"Ganador QF-02","nextMatch":"F-01","status":"pendiente"},
+    {"matchId":"F-01","round":"final","date":"","teamA":"","teamB":"","sourceLabelA":"Ganador SF-01","sourceLabelB":"Ganador SF-02","nextMatch":"","status":"pendiente"}
+  ],
+  "results": [],
+  "leaderboard": [],
+  "deadline": "2026-07-01T18:00:00-06:00"
+}

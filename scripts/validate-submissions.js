@@ -4,7 +4,7 @@ import { readJson, readJsonl, isValidDate, normalizePlayerNumber, submissionIsBe
 const config = readJson('data/config.json');
 const matches = readJson('data/matches.json');
 const submissions = readJsonl('data/submissions.jsonl');
-const matchIds = new Set(matches.map((match) => match.id));
+const matchIds = new Set(matches.map((match) => match.id || match.matchId));
 const errors = [];
 const warnings = [];
 const seen = new Set();
