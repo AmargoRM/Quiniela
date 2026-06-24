@@ -1,9 +1,9 @@
 const SHEETS={
   config:['key','value'],
   users:['createdAt','playerNumber','playerName','passwordHash','status','lastLogin'],
-  matches:['matchId','round','date','teamA','teamB','sourceLabelA','sourceLabelB','nextMatch','status'],
+  matches:['matchId','round','date','teamA','teamB','teamASource','teamBSource','teamAStatus','teamBStatus','teamASourceName','teamBSourceName','teamASourceUrl','teamBSourceUrl','teamAConfirmedAt','teamBConfirmedAt','teamAUpdatedBy','teamBUpdatedBy','manualOverrideA','manualOverrideB'],
   submissions:['timestamp','submissionId','playerNumber','playerName','predictionsJson','validBeforeDeadline','version'],
-  results:['matchId','goalsA','goalsB','winner','status'],
+  results:['matchId','goalsA','goalsB','winner','status','manualOverrideResult','updatedBy','updatedAt'],
   leaderboard:['position','playerNumber','playerName','totalPoints','exactHits','winnerHits','lastValidSubmission'],
   audit:['timestamp','action','playerNumber','payloadJson']
 };
@@ -34,12 +34,36 @@ function resetTournamentData_(resetMode){
 }
 function syncTournamentData_(){
   const url=PropertiesService.getScriptProperties().getProperty('OFFICIAL_DATA_URL');
-  if(!url)throw new Error('No hay fuente de datos configurada para sincronización.');
-  const data=JSON.parse(UrlFetchApp.fetch(url,{muteHttpExceptions:true}).getContentText());
-  if(Array.isArray(data.matches))replace_('matches',data.matches);
-  if(Array.isArray(data.results)){replace_('results',data.results);recalculate_();}
-  audit_('syncTournamentData','admin',{matches:Array.isArray(data.matches)?data.matches.length:0,results:Array.isArray(data.results)?data.results.length:0});
-  return{ok:true,message:'Partidos y clasificados actualizados desde la fuente configurada.'};
+  const currentMatches=rows_('matches'),currentResults=rows_('results');
+  if(!url){
+    audit_('syncTournamentData','admin',{status:'manual',dataSourceMode:'manual',matchesReviewed:0,fieldsUpdated:0,placeholdersMaintained:currentMatches.length*2,overridesRespected:0,errors:['No hay fuente de datos configurada para sincronización.'],warnings:['Fuente automática no configurada. Los equipos se deben completar manualmente.']});
+    return{ok:false,error:'Fuente automática no configurada. Los equipos se deben completar manualmente.'};
+  }
+  try{
+    const response=UrlFetchApp.fetch(url,{muteHttpExceptions:true});
+    if(response.getResponseCode()>=400)throw new Error('La fuente devolvió HTTP '+response.getResponseCode());
+    const data=JSON.parse(response.getContentText());
+    const nextMatches=mergeMatchesFailClosed_(currentMatches,Array.isArray(data.matches)?data.matches:[]);
+    const nextResults=mergeResultsFailClosed_(currentResults,Array.isArray(data.results)?data.results:[]);
+    replace_('matches',nextMatches.matches);
+    replace_('results',nextResults.results);
+    recalculate_();
+    audit_('syncTournamentData','admin',{status:'ok',source:url,matchesReviewed:nextMatches.matchesReviewed,fieldsUpdated:nextMatches.fieldsUpdated+nextResults.fieldsUpdated,placeholdersMaintained:nextMatches.placeholdersMaintained,overridesRespected:nextMatches.overridesRespected+nextResults.overridesRespected,errors:[],warnings:nextMatches.warnings,diff:nextMatches.diff.concat(nextResults.diff)});
+    return{ok:true,message:'Sincronización fail-closed aplicada.',diff:nextMatches.diff.concat(nextResults.diff)};
+  }catch(err){
+    audit_('syncTournamentData','admin',{status:'error',source:url,matchesReviewed:0,fieldsUpdated:0,placeholdersMaintained:currentMatches.length*2,overridesRespected:0,errors:[String(err.message||err)],warnings:['Se conservaron los datos anteriores.']});
+    return{ok:false,error:String(err.message||err)};
+  }
+}
+function mergeMatchesFailClosed_(current,incoming){
+  const byId=Object.fromEntries(incoming.map(m=>[String(m.matchId),m])),warnings=[],diff=[];let fieldsUpdated=0,placeholdersMaintained=0,overridesRespected=0,matchesReviewed=current.length;
+  const next=current.map(m=>{const out=Object.assign({},m),inc=byId[String(m.matchId)]||{};['A','B'].forEach(side=>{if(String(out['manualOverride'+side])==='true'||out['manualOverride'+side]===true){overridesRespected++;return;}const status=inc['team'+side+'Status'];if(status==='confirmed'&&inc['team'+side]&&inc['team'+side+'SourceName']&&inc['team'+side+'SourceUrl']&&inc['team'+side+'ConfirmedAt']){['team'+side,'team'+side+'Status','team'+side+'SourceName','team'+side+'SourceUrl','team'+side+'ConfirmedAt','team'+side+'UpdatedBy'].forEach(k=>{if(out[k]!==inc[k]){diff.push('M'+m.matchId+' '+k+': '+out[k]+' → '+inc[k]);out[k]=inc[k];fieldsUpdated++;}});}else{placeholdersMaintained++;if(inc['team'+side])warnings.push('M'+m.matchId+' team'+side+' no confirmado; se mantuvo placeholder/dato previo.');}});return out;});
+  return{matches:next,matchesReviewed,fieldsUpdated,placeholdersMaintained,overridesRespected,warnings,diff};
+}
+function mergeResultsFailClosed_(current,incoming){
+  const byId=Object.fromEntries(incoming.map(r=>[String(r.matchId),r]));let fieldsUpdated=0,overridesRespected=0;const diff=[];
+  const next=current.map(r=>{const out=Object.assign({},r),inc=byId[String(r.matchId)]||{};if(String(out.manualOverrideResult)==='true'||out.manualOverrideResult===true){overridesRespected++;return out;}if(String(inc.status)==='terminado'&&inc.winner){['goalsA','goalsB','winner','status'].forEach(k=>{if(out[k]!==inc[k]){diff.push('M'+r.matchId+' '+k+': '+out[k]+' → '+inc[k]);out[k]=inc[k];fieldsUpdated++;}});}return out;});
+  return{results:next,fieldsUpdated,overridesRespected,diff};
 }
 function installSyncTriggers_(){
   ScriptApp.getProjectTriggers().filter(t=>t.getHandlerFunction()==='syncTournamentData_').forEach(t=>ScriptApp.deleteTrigger(t));
