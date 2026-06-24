@@ -1,0 +1,16 @@
+{
+  "status": "manual",
+  "dataSourceMode": "manual",
+  "updatedAt": "1970-01-01T00:00:00.000Z",
+  "sourceName": "none",
+  "sourceUrl": "",
+  "matchesReviewed": 0,
+  "fieldsUpdated": 0,
+  "placeholdersMaintained": 64,
+  "overridesRespected": 0,
+  "errors": [],
+  "warnings": [
+    "Fuente automática no configurada. Los equipos se deben completar manualmente."
+  ],
+  "payloadHash": ""
+}

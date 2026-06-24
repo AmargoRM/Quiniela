@@ -11,7 +11,7 @@ async function api(p){if(CFG.MODE!=='production')return demoApi(p);return fetch(
 const roundOrder=['16avos de final','8vos de final','Cuartos de final','Semifinales','Tercer lugar','Final'];
 const shortRound=r=>({'16avos de final':'16avos','8vos de final':'8vos','Cuartos de final':'Cuartos','Semifinales':'Semis','Tercer lugar':'3er lugar','Final':'Final'}[r]||r||'Ronda');
 function normalizeMatches(ms){return (ms||[]).map((m,i)=>({...m,order:m.order||i+1,sourceTypeA:m.sourceMatchA?'winner':(m.sourceTypeA||'static'),sourceTypeB:m.sourceMatchB?'winner':(m.sourceTypeB||'static')}))}
-function team(m,side){return m?.[side]||m?.[`sourceLabel${side==='teamA'?'A':'B'}`]||'Pendiente por definir'}
+function team(m,side){const suffix=side==='teamA'?'A':'B';return m?.[side]||m?.[`team${suffix}Source`]||m?.[`sourceLabel${suffix}`]||'Pendiente por definir'}
 function realTeam(m,side){return m?.[side]||''}
 function rebuildBracketFromPredictions(){
   const map=Object.fromEntries(normalizeMatches(state.matches).map(m=>[m.matchId,{...m}]));
@@ -30,7 +30,7 @@ function rebuildBracketFromPredictions(){
 function completion(m){const p=predictions[m.matchId]||{},hasTeams=realTeam(m,'teamA')&&realTeam(m,'teamB'),scores=p.scoreA!==''&&p.scoreA!=null&&p.scoreB!==''&&p.scoreB!=null;if(!hasTeams)return{cls:'pending',txt:'Esperando clasificados'};if(scores&&p.winner)return{cls:'complete',txt:'Pronóstico completo'};if(scores&&!p.winner)return{cls:'warn',txt:'Falta elegir clasificado'};return{cls:'pending',txt:'Pendiente'}}
 function updateDraftStatus(txt='Cambios sin guardar'){const el=$('draftStatus'); if(el)el.textContent=txt}
 function saveDraft(){if(!currentUser)return;store.set(`draft-${currentUser.playerNumber}`,{predictions,timestamp:new Date().toISOString()});updateDraftStatus('Guardado local')}
-async function init(){state=CFG.MODE==='production'?{matches:await loadJson('data/matches.json').catch(()=>[]),results:[],leaderboard:[],deadline:CFG.DEADLINE}:await loadJson('data/sample-state.json');state.matches=normalizeMatches(state.matches);state.deadline=state.deadline||CFG.DEADLINE;
+async function init(){state=CFG.MODE==='production'?{matches:await loadJson('data/matches.json').catch(()=>[]),results:[],leaderboard:[],deadline:CFG.DEADLINE}:await loadJson('data/demo-state.json');state.matches=normalizeMatches(state.matches);state.deadline=state.deadline||CFG.DEADLINE;
 const s=store.get('quinielaCurrentUser');if(s){playerPassword=s.password||'';await enterApp(s,false)}}
 function show(el,msg){el.textContent=msg;el.classList.remove('hidden')}
 function hide(el){el.classList.add('hidden')}
