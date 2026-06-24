@@ -1,52 +1,6 @@
 {
-  "generatedAt": "2026-06-24T20:32:55.076Z",
-  "deadline": "2026-06-30T18:00:00-06:00",
+  "generatedAt": null,
+  "deadline": "2026-06-30T11:59:00-06:00",
   "timezone": "America/Costa_Rica",
-  "players": [
-    {
-      "position": 1,
-      "playerNumber": "01",
-      "playerName": "Demo 1",
-      "totalPoints": 0,
-      "exactHits": 0,
-      "winnerHits": 0,
-      "lastValidSubmission": "2026-06-20T15:30:00-06:00",
-      "details": [
-        {
-          "matchId": "R16-01",
-          "round": "8vos de final",
-          "prediction": {
-            "matchId": "R16-01",
-            "teamA": "Equipo A",
-            "teamB": "Equipo B",
-            "goalsA": 1,
-            "goalsB": 1,
-            "winner": "Equipo A"
-          },
-          "result": null,
-          "points": 0,
-          "exactHit": false,
-          "winnerHit": false,
-          "pending": true
-        },
-        {
-          "matchId": "R16-02",
-          "round": "8vos de final",
-          "prediction": {
-            "matchId": "R16-02",
-            "teamA": "Equipo C",
-            "teamB": "Equipo D",
-            "goalsA": 1,
-            "goalsB": 2,
-            "winner": "Equipo D"
-          },
-          "result": null,
-          "points": 0,
-          "exactHit": false,
-          "winnerHit": false,
-          "pending": true
-        }
-      ]
-    }
-  ]
+  "players": []
 }

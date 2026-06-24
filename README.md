@@ -75,8 +75,7 @@ Hojas esperadas:
 El administrador usa una contraseña normal, pero Apps Script guarda solo el hash SHA-256.
 
 1. Genera el SHA-256 de la contraseña elegida.
-2. En Apps Script, abre **Project Settings → Script Properties**.
-3. Crea la propiedad `ADMIN_PASSWORD_HASH` con ese hash.
+2. En la configuración del proyecto de Apps Script, guarda `ADMIN_USERNAME=Amargo` y `ADMIN_PASSWORD_HASH` con el hash elegido. No pongas la contraseña en archivos públicos.
 
 Ejemplo local para generar el hash:
 
@@ -94,14 +93,14 @@ En `config.js` configura:
 window.QUINIELA_CONFIG = {
   MODE: "production",
   GAS_WEBAPP_URL: "https://script.google.com/macros/s/.../exec",
-  DEADLINE: "2026-07-01T18:00:00-06:00",
+  DEADLINE: "2026-06-30T11:59:00-06:00",
   TIMEZONE: "America/Costa_Rica"
 };
 ```
 
 ## 8. Usar el panel admin
 
-Abre `admin.html` y entra con la **Contraseña de administrador**. El panel muestra pestañas para:
+Abre `admin.html` y entra con el **usuario administrador** y la **contraseña**. El panel muestra pestañas para:
 
 - Jugadores.
 - Resultados.
@@ -158,3 +157,7 @@ Cada guardado de quiniela crea una nueva versión en `submissions`; no se sobres
 - `config.js`: modo, URL de Apps Script, cierre y zona horaria.
 - `google-apps-script/Code.gs`: backend para Google Sheets.
 - `assets/bracket.png`: imagen opcional de la llave visual.
+
+## Sincronización automática
+
+En producción, configura una URL JSON confiable en la propiedad `OFFICIAL_DATA_URL`. La acción administrativa `syncTournamentData` actualiza partidos y resultados. Ejecuta una vez `installSyncTriggers_()` desde Apps Script para programar la sincronización diaria a las 08:00, 14:00 y 20:00.
