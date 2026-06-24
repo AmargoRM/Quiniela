@@ -1,0 +1,12 @@
+{
+  "name": "quiniela-mundial-oficina",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Quiniela estática para fase eliminatoria del Mundial en oficina.",
+  "type": "module",
+  "scripts": {
+    "validate": "node scripts/validate-submissions.js",
+    "score": "node scripts/score.js",
+    "build": "npm run validate && npm run score"
+  }
+}

@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin · Quiniela Mundial Oficina</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="hero small">
+    <nav><a href="index.html">Inicio</a><a href="admin.html">Admin</a></nav>
+    <p class="eyebrow">Panel administrador local</p>
+    <h1>Resultados reales</h1>
+    <p>Este panel es de lectura. Para modificar resultados edita <code>data/results.json</code>, haz commit y deja que GitHub Actions regenere la tabla.</p>
+  </header>
+  <main>
+    <section class="card warning">
+      <h2>Cómo administrar</h2>
+      <ol>
+        <li>Actualiza <code>status</code>, <code>goalsA</code>, <code>goalsB</code> y <code>winner</code> en <code>data/results.json</code>.</li>
+        <li>Ejecuta <code>node scripts/validate-submissions.js</code> y <code>node scripts/score.js</code>.</li>
+        <li>Haz commit para conservar auditoría.</li>
+      </ol>
+    </section>
+    <section class="card">
+      <h2>Resultados cargados</h2>
+      <div class="table-wrap"><table><thead><tr><th>Partido</th><th>Ronda</th><th>Equipos</th><th>Marcador</th><th>Clasificado</th><th>Estado</th></tr></thead><tbody id="admin-results"></tbody></table></div>
+    </section>
+  </main>
+  <script src="admin.js"></script>
+</body>
+</html>
