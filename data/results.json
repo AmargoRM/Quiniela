@@ -1,0 +1,9 @@
+[
+  { "matchId": "P73", "goalsA": 1, "goalsB": 1, "winner": "Costa Norte", "status": "finished" },
+  { "matchId": "P74", "goalsA": 0, "goalsB": 2, "winner": "Río Dorado", "status": "finished" },
+  { "matchId": "P81", "goalsA": null, "goalsB": null, "winner": null, "status": "pending" },
+  { "matchId": "P89", "goalsA": null, "goalsB": null, "winner": null, "status": "pending" },
+  { "matchId": "P93", "goalsA": null, "goalsB": null, "winner": null, "status": "pending" },
+  { "matchId": "P95", "goalsA": null, "goalsB": null, "winner": null, "status": "pending" },
+  { "matchId": "P96", "goalsA": null, "goalsB": null, "winner": null, "status": "pending" }
+]

@@ -1,0 +1,31 @@
+name: Registrar predicción
+on:
+  issues:
+    types: [opened]
+permissions:
+  contents: write
+  issues: write
+jobs:
+  register:
+    if: contains(github.event.issue.labels.*.name, 'prediccion')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Copiar issue a submissions.jsonl
+        run: node scripts/register-issue-submission.js
+      - run: node scripts/validate-submissions.js
+      - run: node scripts/score.js
+      - name: Commit predicción
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: 'chore: registrar predicción desde issue #${{ github.event.issue.number }}'
+          file_pattern: data/submissions.jsonl data/leaderboard.json
+      - name: Comentar y cerrar issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({ owner: context.repo.owner, repo: context.repo.repo, issue_number: context.issue.number, body: 'Predicción registrada' });
+            await github.rest.issues.update({ owner: context.repo.owner, repo: context.repo.repo, issue_number: context.issue.number, state: 'closed' });

@@ -1,0 +1,178 @@
+{
+  "generatedAt": "2026-06-24T19:27:34.690Z",
+  "deadline": "2026-06-30T18:00:00-06:00",
+  "timezone": "America/Costa_Rica",
+  "players": [
+    {
+      "position": 1,
+      "playerNumber": "01",
+      "playerName": "Ana",
+      "totalPoints": 4,
+      "exactHits": 1,
+      "winnerHits": 2,
+      "lastValidSubmission": "2026-06-20T15:30:00-06:00",
+      "details": [
+        {
+          "matchId": "P73",
+          "round": "16avos",
+          "prediction": {
+            "matchId": "P73",
+            "teamA": "Costa Norte",
+            "teamB": "Valle Sur",
+            "goalsA": 1,
+            "goalsB": 1,
+            "winner": "Costa Norte"
+          },
+          "result": {
+            "matchId": "P73",
+            "goalsA": 1,
+            "goalsB": 1,
+            "winner": "Costa Norte",
+            "status": "finished"
+          },
+          "points": 3,
+          "exactHit": true,
+          "winnerHit": true,
+          "pending": false
+        },
+        {
+          "matchId": "P74",
+          "round": "16avos",
+          "prediction": {
+            "matchId": "P74",
+            "teamA": "Montaña Azul",
+            "teamB": "Río Dorado",
+            "goalsA": 1,
+            "goalsB": 2,
+            "winner": "Río Dorado"
+          },
+          "result": {
+            "matchId": "P74",
+            "goalsA": 0,
+            "goalsB": 2,
+            "winner": "Río Dorado",
+            "status": "finished"
+          },
+          "points": 1,
+          "exactHit": false,
+          "winnerHit": true,
+          "pending": false
+        }
+      ]
+    },
+    {
+      "position": 2,
+      "playerNumber": "03",
+      "playerName": "Carla",
+      "totalPoints": 3,
+      "exactHits": 1,
+      "winnerHits": 1,
+      "lastValidSubmission": "2026-06-22T08:45:00-06:00",
+      "details": [
+        {
+          "matchId": "P73",
+          "round": "16avos",
+          "prediction": {
+            "matchId": "P73",
+            "teamA": "Costa Norte",
+            "teamB": "Valle Sur",
+            "goalsA": 0,
+            "goalsB": 1,
+            "winner": "Valle Sur"
+          },
+          "result": {
+            "matchId": "P73",
+            "goalsA": 1,
+            "goalsB": 1,
+            "winner": "Costa Norte",
+            "status": "finished"
+          },
+          "points": 0,
+          "exactHit": false,
+          "winnerHit": false,
+          "pending": false
+        },
+        {
+          "matchId": "P74",
+          "round": "16avos",
+          "prediction": {
+            "matchId": "P74",
+            "teamA": "Montaña Azul",
+            "teamB": "Río Dorado",
+            "goalsA": 0,
+            "goalsB": 2,
+            "winner": "Río Dorado"
+          },
+          "result": {
+            "matchId": "P74",
+            "goalsA": 0,
+            "goalsB": 2,
+            "winner": "Río Dorado",
+            "status": "finished"
+          },
+          "points": 3,
+          "exactHit": true,
+          "winnerHit": true,
+          "pending": false
+        }
+      ]
+    },
+    {
+      "position": 3,
+      "playerNumber": "02",
+      "playerName": "Bruno",
+      "totalPoints": 1,
+      "exactHits": 0,
+      "winnerHits": 1,
+      "lastValidSubmission": "2026-06-21T10:10:00-06:00",
+      "details": [
+        {
+          "matchId": "P73",
+          "round": "16avos",
+          "prediction": {
+            "matchId": "P73",
+            "teamA": "Costa Norte",
+            "teamB": "Valle Sur",
+            "goalsA": 2,
+            "goalsB": 0,
+            "winner": "Costa Norte"
+          },
+          "result": {
+            "matchId": "P73",
+            "goalsA": 1,
+            "goalsB": 1,
+            "winner": "Costa Norte",
+            "status": "finished"
+          },
+          "points": 1,
+          "exactHit": false,
+          "winnerHit": true,
+          "pending": false
+        },
+        {
+          "matchId": "P74",
+          "round": "16avos",
+          "prediction": {
+            "matchId": "P74",
+            "teamA": "Montaña Azul",
+            "teamB": "Río Dorado",
+            "goalsA": 1,
+            "goalsB": 0,
+            "winner": "Montaña Azul"
+          },
+          "result": {
+            "matchId": "P74",
+            "goalsA": 0,
+            "goalsB": 2,
+            "winner": "Río Dorado",
+            "status": "finished"
+          },
+          "points": 0,
+          "exactHit": false,
+          "winnerHit": false,
+          "pending": false
+        }
+      ]
+    }
+  ]
+}

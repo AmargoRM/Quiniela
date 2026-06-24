@@ -1,0 +1,24 @@
+name: Recalcular tabla
+on:
+  push:
+    paths:
+      - 'data/**'
+      - 'scripts/**'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  score:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: node scripts/validate-submissions.js
+      - run: node scripts/score.js
+      - name: Commit leaderboard
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: 'chore: actualizar tabla de posiciones'
+          file_pattern: data/leaderboard.json

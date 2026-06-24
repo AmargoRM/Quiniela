@@ -1,0 +1,65 @@
+[
+  {
+    "id": "P73",
+    "round": "16avos",
+    "date": "2026-07-01T12:00:00-06:00",
+    "teamA": "Costa Norte",
+    "teamB": "Valle Sur",
+    "nextMatch": "P81",
+    "bracketSide": "A"
+  },
+  {
+    "id": "P74",
+    "round": "16avos",
+    "date": "2026-07-01T15:00:00-06:00",
+    "teamA": "Montaña Azul",
+    "teamB": "Río Dorado",
+    "nextMatch": "P81",
+    "bracketSide": "A"
+  },
+  {
+    "id": "P81",
+    "round": "8vos",
+    "date": "2026-07-05T14:00:00-06:00",
+    "teamA": "Ganador P73",
+    "teamB": "Ganador P74",
+    "nextMatch": "P89",
+    "bracketSide": "A"
+  },
+  {
+    "id": "P89",
+    "round": "cuartos",
+    "date": "2026-07-09T14:00:00-06:00",
+    "teamA": "Ganador P81",
+    "teamB": "Pacífico Central",
+    "nextMatch": "P93",
+    "bracketSide": "A"
+  },
+  {
+    "id": "P93",
+    "round": "semifinales",
+    "date": "2026-07-13T14:00:00-06:00",
+    "teamA": "Ganador P89",
+    "teamB": "Altiplano FC",
+    "nextMatch": "P96",
+    "bracketSide": "A"
+  },
+  {
+    "id": "P95",
+    "round": "tercer lugar",
+    "date": "2026-07-18T14:00:00-06:00",
+    "teamA": "Perdedor semifinal 1",
+    "teamB": "Perdedor semifinal 2",
+    "nextMatch": null,
+    "bracketSide": "finales"
+  },
+  {
+    "id": "P96",
+    "round": "final",
+    "date": "2026-07-19T14:00:00-06:00",
+    "teamA": "Ganador semifinal 1",
+    "teamB": "Ganador semifinal 2",
+    "nextMatch": null,
+    "bracketSide": "finales"
+  }
+]

@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Quiniela Mundial Oficina</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="hero">
+    <nav><a href="index.html">Inicio</a><a href="admin.html">Admin</a></nav>
+    <p class="eyebrow">Fase eliminatoria · Oficina</p>
+    <h1 id="app-title">Quiniela Mundial Oficina</h1>
+    <p>Elige clasificados y marcador antes del cierre. La tabla usa la última predicción válida registrada antes de la fecha límite.</p>
+    <div class="actions"><a class="button" href="https://github.com/new?template=prediccion.yml">Registrar predicción</a><span id="deadline" class="pill"></span></div>
+  </header>
+  <main>
+    <section class="card rules">
+      <h2>Reglas rápidas</h2>
+      <ul>
+        <li><strong>3 puntos</strong> por clasificado y marcador exacto.</li>
+        <li><strong>1 punto</strong> por clasificado correcto sin marcador exacto.</li>
+        <li><strong>0 puntos</strong> si no aciertas el clasificado.</li>
+        <li>En empates con penales cuenta el marcador antes de penales y el equipo clasificado.</li>
+      </ul>
+    </section>
+    <section class="card">
+      <div class="section-title"><h2>Tabla de posiciones</h2><span id="generated-at"></span></div>
+      <div class="table-wrap"><table><thead><tr><th>Puesto</th><th>Número</th><th>Nombre</th><th>Puntos</th><th>Exactos</th><th>Ganador</th><th>Última válida</th></tr></thead><tbody id="leaderboard-body"></tbody></table></div>
+    </section>
+    <section class="card">
+      <h2>Detalle por participante</h2>
+      <div id="player-detail" class="detail-grid"></div>
+    </section>
+    <section class="card">
+      <h2>Partidos por ronda</h2>
+      <div id="matches" class="rounds"></div>
+    </section>
+  </main>
+  <footer>Sin logos oficiales ni marcas registradas. Registro auditado con JSONL e historial Git.</footer>
+  <script src="app.js"></script>
+</body>
+</html>
