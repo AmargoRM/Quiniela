@@ -1,16 +1,26 @@
-const fmtAdmin = new Intl.DateTimeFormat('es-CR', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'America/Costa_Rica' });
-async function loadJson(path) {
-  const response = await fetch(path, { cache: 'no-store' });
-  if (!response.ok) throw new Error(`No se pudo cargar ${path}`);
-  return response.json();
+const CFG = window.QUINIELA_CONFIG || {}; const $=id=>document.getElementById(id); let state={}, slots=[], selected=null, calibration=false;
+async function loadJson(p){return fetch(p,{cache:'no-store'}).then(r=>r.json())}
+async function api(action,payload={}){ if(CFG.MODE!=='production') return demoAdmin(action,payload); return fetch(CFG.GAS_WEBAPP_URL,{method:'POST',body:JSON.stringify({action,adminToken:$('adminToken').value,...payload})}).then(r=>r.json())}
+async function getState(){ slots=await loadJson('data/bracket-slots.json'); state=CFG.MODE==='production'?await fetch(`${CFG.GAS_WEBAPP_URL}?action=getState`).then(r=>r.json()):await loadJson('data/sample-state.json'); renderAll(); }
+function renderAll(){renderEditors();renderBracket();renderLeaderboard();$('slotsJson').value=JSON.stringify(slots,null,2)}
+function renderEditors(){ $('matchesEditor').innerHTML=(state.matches||[]).map(m=>`<div class="detail-row" data-mid="${m.matchId}"><b>${m.matchId}</b><label>Equipo A<input data-match="${m.matchId}" data-field="teamA" value="${esc(m.teamA||'')}"></label><label>Equipo B<input data-match="${m.matchId}" data-field="teamB" value="${esc(m.teamB||'')}"></label><label>Estado<select data-match="${m.matchId}" data-field="status"><option ${m.status==='pendiente'?'selected':''}>pendiente</option><option ${m.status==='terminado'?'selected':''}>terminado</option></select></label></div>`).join(''); $('resultsEditor').innerHTML=(state.matches||[]).map(m=>{const r=(state.results||[]).find(x=>x.matchId===m.matchId)||{};return `<div class="detail-row"><b>${m.matchId}</b><label>Goles A<input type="number" min="0" data-result="${m.matchId}" data-field="goalsA" value="${r.goalsA??''}"></label><label>Goles B<input type="number" min="0" data-result="${m.matchId}" data-field="goalsB" value="${r.goalsB??''}"></label><label>Ganador<input data-result="${m.matchId}" data-field="winner" value="${esc(r.winner||'')}"></label><label>Estado<select data-result="${m.matchId}" data-field="status"><option ${r.status!=='terminado'?'selected':''}>pendiente</option><option ${r.status==='terminado'?'selected':''}>terminado</option></select></label></div>`}).join('') }
+function renderBracket(){ const layer=$('slotLayer'); layer.innerHTML=''; slots.forEach(s=>{let d=document.createElement('div');d.className=`slot ${s.fieldType}`;Object.assign(d.style,{left:s.xPercent+'%',top:s.yPercent+'%',width:s.widthPercent+'%',height:s.heightPercent+'%'});let i=document.createElement('input');i.value=s.id;i.readOnly=true;d.append(i);d.onclick=()=>{selected=s;document.querySelectorAll('.slot').forEach(x=>x.style.boxShadow='');d.style.boxShadow='0 0 0 3px #f97316'};layer.append(d)});$('bracketCanvas').classList.toggle('calibration',calibration)}
+function collectMatches(){document.querySelectorAll('[data-match]').forEach(el=>{let m=state.matches.find(x=>x.matchId===el.dataset.match);m[el.dataset.field]=el.value});return state.matches}
+function collectResults(){let map={};document.querySelectorAll('[data-result]').forEach(el=>{map[el.dataset.result] ||= {matchId:el.dataset.result}; map[el.dataset.result][el.dataset.field]=el.value});return Object.values(map)}
+async function saveMatches(){let r=await api('saveMatches',{matches:collectMatches()});notice(r)} async function saveResults(){let r=await api('saveResults',{results:collectResults()});notice(r)} async function recalc(){let r=await api('recalculate',{});notice(r); await getState()}
+function renderLeaderboard(){const rows=state.leaderboard||[];$('adminLeaderboard').innerHTML=`<table class="leaderboard-table"><tbody>${rows.map(r=>`<tr><td>${r.position}</td><td>${r.playerNumber}</td><td>${esc(r.playerName)}</td><td>${r.totalPoints}</td></tr>`).join('')||'<tr><td>Sin datos.</td></tr>'}</tbody></table>`}
+function exportCsv(){const rows=[['position','playerNumber','playerName','totalPoints','exactHits','winnerHits','lastValidSubmission'],...(state.leaderboard||[]).map(r=>[r.position,r.playerNumber,r.playerName,r.totalPoints,r.exactHits,r.winnerHits,r.lastValidSubmission])]; const blob=new Blob([rows.map(r=>r.map(v=>`"${String(v??'').replaceAll('"','""')}"`).join(',')).join('\n')],{type:'text/csv'}); let a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='leaderboard.csv';a.click()}
+function copySlots(){navigator.clipboard?.writeText(JSON.stringify(slots,null,2));$('slotsJson').value=JSON.stringify(slots,null,2);notice({ok:true,message:'JSON copiado. Pégalo en data/bracket-slots.json y haz commit.'})}
+document.addEventListener('keydown',e=>{if(!selected||!calibration)return; let step=e.altKey?0.1:0.5; let size=e.shiftKey; if(!['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key))return; e.preventDefault(); let dx=(e.key==='ArrowRight')*step-(e.key==='ArrowLeft')*step, dy=(e.key==='ArrowDown')*step-(e.key==='ArrowUp')*step; if(size){selected.widthPercent=Math.max(1,selected.widthPercent+dx);selected.heightPercent=Math.max(1,selected.heightPercent+dy)}else{selected.xPercent+=dx;selected.yPercent+=dy} renderBracket();copySlots()});
+function demoAdmin(action,p){ if(action==='saveMatches'){localStorage.setItem('demoMatches',JSON.stringify(p.matches));return{ok:true,message:'Equipos guardados localmente'}} if(action==='saveResults')return{ok:true,message:'Resultados recibidos en demo'}; return{ok:true,message:'Acción demo completada'}} function notice(r){$('adminNotice').textContent=r.ok?(r.message||'Listo'):(r.error||'Error')} function esc(s=''){return String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
+$('loadBtn').onclick=getState;$('saveMatchesBtn').onclick=saveMatches;$('saveResultsBtn').onclick=saveResults;$('recalcBtn').onclick=recalc;$('csvBtn').onclick=exportCsv;$('calibrationBtn').onclick=()=>{calibration=!calibration;renderBracket()};$('copySlotsBtn').onclick=copySlots;getState();
+function setupBracketImageFallback(){
+  const img = document.getElementById('bracketImage');
+  const placeholder = document.getElementById('bracketPlaceholder');
+  if (!img || !placeholder) return;
+  img.addEventListener('error', () => {
+    img.classList.add('hidden');
+    placeholder.classList.remove('hidden');
+  });
 }
-Promise.all([loadJson('data/matches.json'), loadJson('data/results.json')]).then(([matches, results]) => {
-  const matchById = new Map(matches.map((match) => [match.id, match]));
-  document.querySelector('#admin-results').innerHTML = results.map((result) => {
-    const match = matchById.get(result.matchId) || {};
-    const marcador = result.status === 'finished' ? `${result.goalsA}-${result.goalsB}` : 'Pendiente';
-    return `<tr><td>${result.matchId}</td><td>${match.round || '-'}</td><td>${match.teamA || '-'} vs ${match.teamB || '-'}</td><td>${marcador}</td><td>${result.winner || '-'}</td><td><span class="tag">${result.status}</span></td></tr>`;
-  }).join('');
-}).catch((error) => {
-  document.body.insertAdjacentHTML('beforeend', `<main><section class="card warning">${error.message}</section></main>`);
-});
+setupBracketImageFallback();

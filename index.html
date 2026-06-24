@@ -1,43 +1,52 @@
 <!doctype html>
 <html lang="es">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Quiniela Mundial Oficina</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <header class="hero">
-    <nav><a href="index.html">Inicio</a><a href="admin.html">Admin</a></nav>
-    <p class="eyebrow">Fase eliminatoria · Oficina</p>
-    <h1 id="app-title">Quiniela Mundial Oficina</h1>
-    <p>Elige clasificados y marcador antes del cierre. La tabla usa la última predicción válida registrada antes de la fecha límite.</p>
-    <div class="actions"><a class="button" href="https://github.com/new?template=prediccion.yml">Registrar predicción</a><span id="deadline" class="pill"></span></div>
+    <div>
+      <p class="eyebrow">Fase eliminatoria · uso interno</p>
+      <h1>Quiniela Mundial Oficina</h1>
+      <p>Ingresa tu nombre, número de jugador y completa tus marcadores. No necesitas GitHub, JSON ni conocimientos técnicos.</p>
+    </div>
+    <a class="admin-link" href="admin.html">Panel admin</a>
   </header>
+
   <main>
-    <section class="card rules">
-      <h2>Reglas rápidas</h2>
-      <ul>
-        <li><strong>3 puntos</strong> por clasificado y marcador exacto.</li>
-        <li><strong>1 punto</strong> por clasificado correcto sin marcador exacto.</li>
-        <li><strong>0 puntos</strong> si no aciertas el clasificado.</li>
-        <li>En empates con penales cuenta el marcador antes de penales y el equipo clasificado.</li>
-      </ul>
+    <section id="loginCard" class="card login-card">
+      <h2>Entrar a mi quiniela</h2>
+      <p class="muted">Los pronósticos enviados después del cierre se guardan como tardíos y no cuentan.</p>
+      <label>Nombre<input id="playerName" autocomplete="name" placeholder="Ej. Ana Rodríguez" /></label>
+      <label>Número de jugador<input id="playerNumber" inputmode="numeric" placeholder="Ej. 12" /></label>
+      <button id="enterBtn" class="primary">Entrar a mi quiniela</button>
     </section>
-    <section class="card">
-      <div class="section-title"><h2>Tabla de posiciones</h2><span id="generated-at"></span></div>
-      <div class="table-wrap"><table><thead><tr><th>Puesto</th><th>Número</th><th>Nombre</th><th>Puntos</th><th>Exactos</th><th>Ganador</th><th>Última válida</th></tr></thead><tbody id="leaderboard-body"></tbody></table></div>
-    </section>
-    <section class="card">
-      <h2>Detalle por participante</h2>
-      <div id="player-detail" class="detail-grid"></div>
-    </section>
-    <section class="card">
-      <h2>Partidos por ronda</h2>
-      <div id="matches" class="rounds"></div>
+
+    <section id="appView" class="hidden">
+      <div class="toolbar card">
+        <div><strong id="playerBadge"></strong><br><span id="deadlineText" class="muted"></span></div>
+        <div class="actions"><button id="saveBtn" class="primary">Guardar pronóstico</button><button id="reloadBtn">Actualizar</button></div>
+      </div>
+      <div id="notice" class="notice hidden"></div>
+      <section class="bracket-scroll card">
+        <div id="bracketCanvas" class="bracket-canvas">
+          <img id="bracketImage" src="assets/bracket.png" alt="Imagen de llave eliminatoria" />
+          <div id="bracketPlaceholder" class="bracket-placeholder hidden">Sube la imagen real como <strong>assets/bracket.png</strong></div>
+          <div id="slotLayer" class="slot-layer"></div>
+        </div>
+      </section>
+      <section id="receipt" class="card receipt hidden"></section>
+      <section class="card">
+        <div class="section-head"><h2>Tabla de posiciones</h2><button id="leaderboardRefresh">Recalcular vista</button></div>
+        <div id="leaderboard"></div>
+      </section>
+      <section id="detail" class="card hidden"></section>
     </section>
   </main>
-  <footer>Sin logos oficiales ni marcas registradas. Registro auditado con JSONL e historial Git.</footer>
+  <script src="config.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

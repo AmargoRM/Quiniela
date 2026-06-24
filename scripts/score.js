@@ -6,7 +6,7 @@ const matches = readJson('data/matches.json');
 const results = readJson('data/results.json');
 const submissions = readJsonl('data/submissions.jsonl');
 const resultByMatch = new Map(results.map((result) => [result.matchId, result]));
-const matchById = new Map(matches.map((match) => [match.id, match]));
+const matchById = new Map(matches.map((match) => [match.id || match.matchId, match]));
 const latest = getLatestValidSubmissions(submissions, config.deadline);
 
 const players = latest.map((submission) => {

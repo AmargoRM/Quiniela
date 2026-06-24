@@ -1,139 +1,116 @@
 # Quiniela Mundial Oficina
 
-Aplicación web estática para administrar una quiniela interna de oficina durante la fase eliminatoria del Mundial. Funciona con HTML, CSS y JavaScript puro, sin dependencias de ejecución, y está lista para GitHub Pages.
+Web estática para una quiniela interna de oficina sobre la fase eliminatoria del Mundial. No usa GitHub Issues para usuarios, no requiere JSON manual y no procesa dinero ni apuestas en línea.
 
-## Características
+## Archivos principales
 
-- Tabla de posiciones generada desde archivos versionados.
-- Predicciones append-only en `data/submissions.jsonl`: nunca se sobrescriben envíos anteriores.
-- Puntuación automática:
-  - 3 puntos si se acierta clasificado y marcador exacto.
-  - 1 punto si se acierta solo el clasificado.
-  - 0 puntos si no se acierta el clasificado.
-- Soporte para empates con penales: el marcador es antes de penales y `winner` es el equipo clasificado.
-- Panel `admin.html` de solo lectura para revisar resultados cargados.
-- Workflows para registrar predicciones desde GitHub Issues y recalcular la tabla.
+- `index.html`: formulario público para participantes.
+- `admin.html`: panel para clasificados, resultados, CSV y calibración visual.
+- `config.js`: `DEADLINE`, `TIMEZONE`, `GAS_WEBAPP_URL` y `MODE`.
+- `data/bracket-slots.json`: coordenadas porcentuales de campos sobre la imagen.
+- `data/matches.json` y `data/sample-state.json`: estructura inicial y demo local.
+- `google-apps-script/Code.gs`: API para Google Sheets.
 
-## Estructura
+## 1. Subir `assets/bracket.png`
 
-```text
-.
-├── index.html
-├── admin.html
-├── app.js
-├── admin.js
-├── styles.css
-├── data/
-│   ├── config.json
-│   ├── matches.json
-│   ├── results.json
-│   ├── submissions.jsonl
-│   └── leaderboard.json
-├── scripts/
-│   ├── lib.js
-│   ├── score.js
-│   ├── register-issue-submission.js
-│   └── validate-submissions.js
-└── .github/
-    ├── ISSUE_TEMPLATE/prediccion.yml
-    └── workflows/
-```
+La llave visual debe guardarse como `assets/bracket.png`. Este repositorio no versiona binarios; si el archivo no existe, la página muestra un placeholder HTML/CSS claro para que puedas probar y calibrar. Sube tu imagen real de la llave eliminatoria con ese nombre exacto. No uses logos oficiales ni marcas registradas si no tienes permiso.
 
-## Activar GitHub Pages
+Los campos se ubican por porcentaje, no por pixeles, para mantener el diseño responsive. Ajusta la alineación desde `admin.html` con **Modo calibración** y copia el JSON resultante a `data/bracket-slots.json`.
 
-1. Sube este repositorio a GitHub.
-2. Entra en **Settings → Pages**.
+## 2. Activar GitHub Pages
+
+1. Sube el repositorio a GitHub.
+2. Entra a **Settings → Pages**.
 3. En **Build and deployment**, selecciona **Deploy from a branch**.
-4. Elige la rama principal y la carpeta `/root`.
-5. Guarda. La web publicará `index.html` y `admin.html`.
+4. Selecciona la rama principal y la carpeta raíz `/`.
+5. Guarda y espera la URL pública.
 
-## Configurar fecha límite
+## 3. Crear Google Sheet
 
-Edita `data/config.json`:
+Crea una hoja de Google vacía. El Apps Script creará estas pestañas si no existen:
 
-```json
-{
-  "deadline": "2026-06-30T18:00:00-06:00",
-  "timezone": "America/Costa_Rica",
-  "title": "Quiniela Mundial Oficina",
-  "tournamentStage": "Fase eliminatoria"
-}
+- `config`: `key`, `value`
+- `matches`: `matchId`, `round`, `date`, `teamA`, `teamB`, `sourceLabelA`, `sourceLabelB`, `nextMatch`, `status`
+- `submissions`: `timestamp`, `submissionId`, `playerNumber`, `playerName`, `predictionsJson`, `validBeforeDeadline`, `userAgentHash`, `version`
+- `results`: `matchId`, `goalsA`, `goalsB`, `winner`, `status`
+- `leaderboard`: `position`, `playerNumber`, `playerName`, `totalPoints`, `exactHits`, `winnerHits`, `lastValidSubmission`
+- `audit`: `timestamp`, `action`, `payloadJson`
+
+En `config`, agrega al menos:
+
+| key | value |
+| --- | --- |
+| DEADLINE | 2026-07-01T18:00:00-06:00 |
+| TIMEZONE | America/Costa_Rica |
+
+## 4. Pegar `Code.gs` en Apps Script
+
+1. En la hoja, abre **Extensions → Apps Script**.
+2. Borra el contenido inicial.
+3. Copia `google-apps-script/Code.gs`.
+4. En **Project Settings → Script Properties**, crea `ADMIN_TOKEN` con un valor secreto.
+5. Guarda.
+
+## 5. Desplegar Apps Script como Web App
+
+1. Click en **Deploy → New deployment**.
+2. Tipo: **Web app**.
+3. Execute as: **Me**.
+4. Who has access: **Anyone**.
+5. Copia la URL del Web App.
+
+## 6. Copiar URL en `config.js`
+
+Edita:
+
+```js
+window.QUINIELA_CONFIG = {
+  DEADLINE: "2026-07-01T18:00:00-06:00",
+  TIMEZONE: "America/Costa_Rica",
+  GAS_WEBAPP_URL: "https://script.google.com/macros/s/.../exec",
+  MODE: "production"
+};
 ```
 
-La tabla oficial usa la última predicción válida de cada jugador cuyo `timestamp` sea menor o igual a `deadline`.
+## 7. Usar modo demo
 
-## Cargar partidos
+Deja `MODE: "demo"`. La web usa `data/sample-state.json` y guarda envíos en `localStorage`. En demo sí aparecen nombres de ejemplo marcados como demo.
 
-Edita `data/matches.json`. La estructura es flexible:
+## 8. Usar modo producción
 
-```json
-{
-  "id": "P73",
-  "round": "16avos",
-  "date": "2026-07-01T12:00:00-06:00",
-  "teamA": "Costa Norte",
-  "teamB": "Valle Sur",
-  "nextMatch": "P81",
-  "bracketSide": "A"
-}
-```
+Configura `GAS_WEBAPP_URL`, cambia `MODE` a `production` y publica en GitHub Pages. En producción no hay equipos ficticios por defecto: los equipos reales se cargan desde el panel admin o desde la pestaña `matches`.
 
-Puedes agregar partidos de 16avos, 8vos, cuartos, semifinales, tercer lugar y final sin cambiar la lógica de puntuación.
+## 9. Cargar clasificados
 
-## Registrar predicciones
+Abre `admin.html`, ingresa `ADMIN_TOKEN`, presiona **Cargar estado**, edita Equipo A / Equipo B por partido y usa **Guardar equipos**. Los nombres aparecen automáticamente en la llave pública.
 
-### Recomendado: GitHub Issues
+## 10. Cargar resultados
 
-1. Activa Issues en el repositorio.
-2. Abre un issue con la plantilla **Predicción de quiniela**.
-3. Completa número, nombre y predicciones en JSON.
-4. El workflow `.github/workflows/register-prediction.yml` copia el contenido a `data/submissions.jsonl`, comenta “Predicción registrada”, cierra el issue y hace commit.
+En `admin.html`, completa goles, ganador/clasificado y estado `terminado`. En empates con penales, escribe el marcador previo a penales y en ganador el equipo que clasificó. Luego presiona **Guardar resultados** o **Recalcular tabla**.
 
-Aunque alguien edite el issue después, la predicción oficial será la línea ya copiada a `data/submissions.jsonl`.
+## 11. Auditar registros
 
-### Manual
+La pestaña `submissions` es append-only: cada guardado crea una fila nueva con `submissionId`, fecha, versión y marca `validBeforeDeadline`. La pestaña `audit` registra acciones como envíos, cambios de resultados y recálculos.
 
-Agrega una línea JSON nueva en `data/submissions.jsonl`. No edites ni borres líneas anteriores:
+## 12. Evitar trampas
 
-```json
-{"timestamp":"2026-06-20T15:30:00-06:00","playerNumber":"01","playerName":"Ana","predictions":[{"matchId":"P73","teamA":"Costa Norte","teamB":"Valle Sur","goalsA":1,"goalsB":1,"winner":"Costa Norte"}],"source":"manual","commitHash":"opcional"}
-```
+- El usuario no edita Google Sheets directamente.
+- Cada pronóstico se agrega como fila nueva; no se borra ni sobrescribe.
+- El cálculo usa la última predicción válida antes del cierre por número de jugador.
+- Los registros tardíos se conservan como evidencia, pero no cuentan.
+- El panel admin requiere `ADMIN_TOKEN` validado en Apps Script Properties.
 
-## Cargar resultados reales
+## Reglas de puntaje
 
-Edita `data/results.json`:
+- 3 puntos: ganador/clasificado correcto y marcador exacto.
+- 1 punto: ganador/clasificado correcto con marcador distinto.
+- 0 puntos: ganador/clasificado incorrecto.
 
-```json
-{
-  "matchId": "P73",
-  "goalsA": 1,
-  "goalsB": 1,
-  "winner": "Costa Norte",
-  "status": "finished"
-}
-```
+## Calibración visual
 
-Para partidos pendientes usa `status: "pending"` y valores `null` en marcador y ganador.
+En `admin.html`, activa **Modo calibración**. Selecciona un campo sobre la llave:
 
-## Recalcular la tabla
-
-Localmente:
-
-```bash
-node scripts/validate-submissions.js
-node scripts/score.js
-```
-
-Esto genera `data/leaderboard.json`. El workflow `.github/workflows/scoreboard.yml` también lo ejecuta cuando cambian archivos en `data/` o `scripts/`.
-
-## Auditar trampas
-
-- `data/submissions.jsonl` es append-only: cada corrección debe ser una nueva línea.
-- Revisa el historial con `git log -- data/submissions.jsonl`.
-- Revisa cambios puntuales con `git show <commit> -- data/submissions.jsonl`.
-- La tabla ignora envíos posteriores a `deadline` y usa solo la última predicción válida antes del cierre.
-- Los issues cerrados dejan evidencia del momento de apertura y del commit automático.
-
-## Datos de ejemplo
-
-El repositorio incluye partidos ficticios, tres participantes, resultados terminados y una tabla generada para probar la experiencia completa antes de usar datos reales.
+- Flechas: mover.
+- `Shift` + flechas: cambiar ancho/alto.
+- `Alt` + flechas: ajuste fino.
+- **Copiar coordenadas JSON**: copia el contenido para reemplazar `data/bracket-slots.json`.
