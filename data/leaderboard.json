@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-24T19:56:38.943Z",
+  "generatedAt": "2026-06-24T20:32:32.287Z",
   "deadline": "2026-06-30T18:00:00-06:00",
   "timezone": "America/Costa_Rica",
   "players": [
@@ -14,7 +14,7 @@
       "details": [
         {
           "matchId": "R16-01",
-          "round": "16avos",
+          "round": "8vos de final",
           "prediction": {
             "matchId": "R16-01",
             "teamA": "Equipo A",
@@ -31,7 +31,7 @@
         },
         {
           "matchId": "R16-02",
-          "round": "16avos",
+          "round": "8vos de final",
           "prediction": {
             "matchId": "R16-02",
             "teamA": "Equipo C",
