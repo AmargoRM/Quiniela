@@ -1,9 +1,9 @@
 {
-  "lastSyncAt": "2026-06-24T21:31:56.905Z",
+  "lastSyncAt": "2026-06-25T06:15:26.425Z",
   "source": "FIFA standings",
   "sourceUrl": "https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/standings",
-  "status": "error",
+  "status": "manual",
   "updatedMatches": 0,
   "updatedTeams": 0,
-  "message": "No se pudo leer FIFA standings automáticamente. Complete equipos manualmente. Error: fetch failed"
+  "message": "FIFA standings no expone posiciones confirmadas de forma estructurada y estable; placeholders conservados. Complete equipos manualmente si corresponde."
 }
