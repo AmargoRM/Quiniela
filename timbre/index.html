@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#3F51B5" />
+<title>TocToc — Timbre</title>
+<style>
+  :root { color-scheme: light dark; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: linear-gradient(160deg, #3F51B5, #283593);
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    text-align: center; padding: 24px;
+  }
+  .card { max-width: 420px; width: 100%; }
+  .bell {
+    font-size: 96px; line-height: 1;
+    display: inline-block;
+    filter: drop-shadow(0 8px 18px rgba(0,0,0,.35));
+  }
+  .ringing { animation: swing .35s ease-in-out infinite; }
+  @keyframes swing {
+    0%,100% { transform: rotate(-14deg); }
+    50% { transform: rotate(14deg); }
+  }
+  h1 { font-size: 26px; margin: 22px 0 8px; font-weight: 800; }
+  p { font-size: 16px; opacity: .92; margin: 6px 0; }
+  .name { font-weight: 700; }
+  .btn {
+    display: inline-block; margin-top: 26px; border: none; cursor: pointer;
+    background: #fff; color: #283593; font-weight: 800; font-size: 18px;
+    padding: 16px 30px; border-radius: 30px; width: 100%;
+    box-shadow: 0 8px 22px rgba(0,0,0,.28);
+  }
+  .btn:active { transform: translateY(1px); }
+  .status { margin-top: 22px; min-height: 24px; font-size: 15px; }
+  .ok { color: #C8F7C5; } .err { color: #FFD2D2; }
+  .spinner {
+    width: 22px; height: 22px; border: 3px solid rgba(255,255,255,.4);
+    border-top-color: #fff; border-radius: 50%; display: inline-block;
+    vertical-align: middle; animation: spin .8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .foot { margin-top: 34px; font-size: 12px; opacity: .7; }
+  a { color: #fff; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div id="bell" class="bell">🔔</div>
+    <h1 id="title">Tocar el timbre</h1>
+    <p>Vas a avisar a <span class="name" id="who">la casa</span> que estás en la puerta.</p>
+    <button class="btn" id="ring">🔔 Tocar timbre</button>
+    <div class="status" id="status"></div>
+    <div class="foot">Enviado con <strong>TocToc</strong> · timbre NFC</div>
+  </div>
+
+<script>
+(function () {
+  var qs = new URLSearchParams(location.search);
+  var topic = qs.get("t") || "";
+  var server = (qs.get("s") || "https://ntfy.sh").replace(/\/+$/, "");
+  var name = qs.get("n") || "la casa";
+
+  var elWho = document.getElementById("who");
+  var elStatus = document.getElementById("status");
+  var elBtn = document.getElementById("ring");
+  var elBell = document.getElementById("bell");
+  elWho.textContent = name;
+
+  function setStatus(html, cls) {
+    elStatus.className = "status " + (cls || "");
+    elStatus.innerHTML = html;
+  }
+
+  function ring() {
+    if (!topic) { setStatus("Enlace inválido (falta el identificador del timbre).", "err"); return; }
+    elBtn.disabled = true;
+    elBell.classList.add("ringing");
+    setStatus('<span class="spinner"></span> Tocando…');
+
+    var url = server + "/" + encodeURIComponent(topic)
+      + "?title=" + encodeURIComponent(name)
+      + "&tags=bell&priority=high";
+
+    fetch(url, {
+      method: "POST",
+      body: "Alguien está tocando el timbre de " + name
+    }).then(function (r) {
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      setStatus("✅ ¡Listo! Ya avisamos que estás en la puerta.", "ok");
+      elBtn.textContent = "Tocar de nuevo";
+    }).catch(function (e) {
+      setStatus("❌ No se pudo avisar. Revisá tu conexión e intentá de nuevo.", "err");
+    }).finally(function () {
+      setTimeout(function () {
+        elBell.classList.remove("ringing");
+        elBtn.disabled = false;
+      }, 1200);
+    });
+  }
+
+  elBtn.addEventListener("click", ring);
+
+  // Si se abre desde la etiqueta NFC, tocamos automáticamente una vez.
+  if (topic && qs.get("auto") !== "0") {
+    setTimeout(ring, 350);
+  }
+})();
+</script>
+</body>
+</html>
