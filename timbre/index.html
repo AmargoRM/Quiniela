@@ -31,12 +31,18 @@
   p { font-size: 16px; opacity: .92; margin: 6px 0; }
   .name { font-weight: 700; }
   .btn {
-    display: inline-block; margin-top: 26px; border: none; cursor: pointer;
+    display: block; margin: 26px 0 0; border: none; cursor: pointer;
     background: #fff; color: #283593; font-weight: 800; font-size: 18px;
     padding: 16px 30px; border-radius: 30px; width: 100%;
-    box-shadow: 0 8px 22px rgba(0,0,0,.28);
+    box-shadow: 0 8px 22px rgba(0,0,0,.28); text-decoration: none;
   }
   .btn:active { transform: translateY(1px); }
+  .btn.secondary {
+    background: transparent; color: #fff; box-shadow: none;
+    font-size: 15px; font-weight: 600; padding: 12px; margin-top: 10px;
+    text-decoration: underline;
+  }
+  .hidden { display: none; }
   .status { margin-top: 22px; min-height: 24px; font-size: 15px; }
   .ok { color: #C8F7C5; } .err { color: #FFD2D2; }
   .spinner {
@@ -54,7 +60,13 @@
     <div id="bell" class="bell">🔔</div>
     <h1 id="title">Tocar el timbre</h1>
     <p>Vas a avisar a <span class="name" id="who">la casa</span> que estás en la puerta.</p>
-    <button class="btn" id="ring">🔔 Tocar timbre</button>
+
+    <!-- Botón para abrir la app (si está instalada) -->
+    <a id="openApp" class="btn hidden">📲 Abrir en la app</a>
+    <!-- Botón para tocar por web -->
+    <button class="btn hidden" id="ring">🔔 Tocar timbre</button>
+    <button class="btn secondary hidden" id="webFallback">¿No se abrió la app? Tocar por web</button>
+
     <div class="status" id="status"></div>
     <div class="foot">Enviado con <strong>TocToc</strong> · timbre NFC</div>
   </div>
@@ -65,51 +77,91 @@
   var topic = qs.get("t") || "";
   var server = (qs.get("s") || "https://ntfy.sh").replace(/\/+$/, "");
   var name = qs.get("n") || "la casa";
+  var alreadyWeb = qs.get("app") === "0"; // ya volvimos del intento de abrir la app
 
   var elWho = document.getElementById("who");
   var elStatus = document.getElementById("status");
-  var elBtn = document.getElementById("ring");
+  var elRing = document.getElementById("ring");
+  var elOpenApp = document.getElementById("openApp");
+  var elWebFallback = document.getElementById("webFallback");
   var elBell = document.getElementById("bell");
   elWho.textContent = name;
+
+  var isAndroid = /android/i.test(navigator.userAgent);
 
   function setStatus(html, cls) {
     elStatus.className = "status " + (cls || "");
     elStatus.innerHTML = html;
   }
+  function show(el) { el.classList.remove("hidden"); }
+  function hide(el) { el.classList.add("hidden"); }
 
-  function ring() {
-    if (!topic) { setStatus("Enlace inválido (falta el identificador del timbre).", "err"); return; }
-    elBtn.disabled = true;
+  // ---- Tocar el timbre por web (publica en ntfy) ----
+  function ringWeb() {
+    if (!topic) { setStatus("Enlace inválido (falta el identificador).", "err"); return; }
+    elRing.disabled = true;
     elBell.classList.add("ringing");
     setStatus('<span class="spinner"></span> Tocando…');
-
     var url = server + "/" + encodeURIComponent(topic)
       + "?title=" + encodeURIComponent(name)
       + "&tags=bell&priority=high";
-
-    fetch(url, {
-      method: "POST",
-      body: "Alguien está tocando el timbre de " + name
-    }).then(function (r) {
-      if (!r.ok) throw new Error("HTTP " + r.status);
-      setStatus("✅ ¡Listo! Ya avisamos que estás en la puerta.", "ok");
-      elBtn.textContent = "Tocar de nuevo";
-    }).catch(function (e) {
-      setStatus("❌ No se pudo avisar. Revisá tu conexión e intentá de nuevo.", "err");
-    }).finally(function () {
-      setTimeout(function () {
-        elBell.classList.remove("ringing");
-        elBtn.disabled = false;
-      }, 1200);
-    });
+    fetch(url, { method: "POST", body: "Alguien está tocando el timbre de " + name })
+      .then(function (r) {
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        setStatus("✅ ¡Listo! Ya avisamos que estás en la puerta.", "ok");
+        elRing.textContent = "Tocar de nuevo";
+      })
+      .catch(function () {
+        setStatus("❌ No se pudo avisar. Revisá tu conexión e intentá de nuevo.", "err");
+      })
+      .finally(function () {
+        setTimeout(function () { elBell.classList.remove("ringing"); elRing.disabled = false; }, 1200);
+      });
   }
 
-  elBtn.addEventListener("click", ring);
-
-  // Si se abre desde la etiqueta NFC, tocamos automáticamente una vez.
-  if (topic && qs.get("auto") !== "0") {
-    setTimeout(ring, 350);
+  // ---- Deep link para abrir la app nativa ----
+  function appIntentUrl() {
+    var fallback = location.origin + location.pathname + "?t=" + encodeURIComponent(topic)
+      + "&s=" + encodeURIComponent(server) + "&n=" + encodeURIComponent(name) + "&app=0";
+    return "intent://ring?t=" + encodeURIComponent(topic)
+      + "&s=" + encodeURIComponent(server)
+      + "&n=" + encodeURIComponent(name)
+      + "#Intent;scheme=toctoc;package=app.toctoc.timbre;"
+      + "S.browser_fallback_url=" + encodeURIComponent(fallback) + ";end";
   }
+
+  function goToApp() {
+    try { location.href = appIntentUrl(); } catch (e) {}
+  }
+
+  // ---- Enrutado ----
+  if (!topic) {
+    setStatus("Enlace inválido: falta el identificador del timbre.", "err");
+    return;
+  }
+
+  if (isAndroid && !alreadyWeb) {
+    // Intentamos abrir la app; si no está instalada, Android cae al fallback (?app=0 -> modo web).
+    setStatus('<span class="spinner"></span> Abriendo la app…');
+    elOpenApp.href = appIntentUrl();
+    show(elOpenApp);           // botón por si el auto-abrir requiere gesto
+    show(elWebFallback);
+    goToApp();
+    // Si en 2.5s seguimos acá (navegador sin soporte de intent://), ofrecemos web claramente.
+    setTimeout(function () {
+      setStatus("Si no se abrió sola, tocá un botón:");
+    }, 2500);
+  } else {
+    // Modo web: no hay app (o ya volvimos del intento). Tocamos automáticamente.
+    show(elRing);
+    ringWeb();
+  }
+
+  elRing.addEventListener("click", ringWeb);
+  elOpenApp.addEventListener("click", function (e) { /* href hace el trabajo */ });
+  elWebFallback.addEventListener("click", function () {
+    hide(elOpenApp); hide(elWebFallback); show(elRing); ringWeb();
+  });
 })();
 </script>
 </body>
