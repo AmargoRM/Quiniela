@@ -93,7 +93,7 @@ se implementa como "una firma propia y estable, no la de Play".
 1. Descargás **una vez** el primer `toctoc.apk` (desde el Release) y lo instalás.
 2. A partir de ahí, en la pantalla **Actualizaciones** tocás *Buscar
    actualización*. La app lee
-   `https://github.com/amargorm/quiniela/releases/latest/download/latest.json`,
+   `https://github.com/AmargoRM/Quiniela/releases/latest/download/latest.json`,
    compara el `versionCode` y, si hay una versión nueva, **descarga e instala**
    el APK con el instalador del sistema.
 

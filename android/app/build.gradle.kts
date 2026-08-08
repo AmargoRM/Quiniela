@@ -8,8 +8,8 @@ plugins {
 
 // ---- App version. Bump these two on every release. ----
 // versionCode MUST strictly increase; the in-app updater compares it.
-val appVersionCode = 1
-val appVersionName = "1.0.0"
+val appVersionCode = 2
+val appVersionName = "1.0.1"
 
 android {
     namespace = "app.toctoc.timbre"
@@ -24,17 +24,18 @@ android {
 
         // URLs configurables por build (se pueden sobreescribir sin tocar código)
         buildConfigField("String", "DEFAULT_NTFY_SERVER", "\"https://ntfy.sh\"")
+        // GitHub Pages distingue mayúsculas en el nombre del repo: debe ser "Quiniela".
         buildConfigField(
             "String",
             "RING_PAGE_BASE",
-            "\"https://amargorm.github.io/quiniela/timbre/\""
+            "\"https://amargorm.github.io/Quiniela/timbre/\""
         )
         // Apunta al último Release: 'releases/latest/download/<asset>' siempre
         // resuelve a la versión más reciente. No requiere GitHub Pages.
         buildConfigField(
             "String",
             "UPDATE_MANIFEST_URL",
-            "\"https://github.com/amargorm/quiniela/releases/latest/download/latest.json\""
+            "\"https://github.com/AmargoRM/Quiniela/releases/latest/download/latest.json\""
         )
     }
 
