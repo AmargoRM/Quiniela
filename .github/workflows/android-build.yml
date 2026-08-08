@@ -5,10 +5,13 @@ name: Build TocToc APK
 on:
   workflow_dispatch:
   push:
+    branches:
+      - "claude/android-nfc-doorbell-app-y6xc41"
     tags:
       - "v*"
     paths:
       - "android/**"
+      - "timbre/**"
       - ".github/workflows/android-build.yml"
 
 permissions:
