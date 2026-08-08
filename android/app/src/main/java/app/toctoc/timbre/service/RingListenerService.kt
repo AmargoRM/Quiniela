@@ -102,8 +102,8 @@ class RingListenerService : Service() {
                 }
                 backoffMs = 2_000L // conexión OK, reinicia backoff
                 BufferedReader(InputStreamReader(conn.inputStream)).use { reader ->
-                    var line: String?
-                    while (running.get() && reader.readLine().also { line = it } != null) {
+                    while (running.get()) {
+                        val line = reader.readLine() ?: break
                         handleLine(line)
                     }
                 }
