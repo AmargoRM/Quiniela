@@ -67,6 +67,21 @@
             android:turnScreenOn="true"
             android:theme="@style/Theme.TocToc.Ring" />
 
+        <!-- Pantalla nativa del visitante: se abre desde la web (deep link)
+             cuando el visitante tiene la app instalada, para tocar el timbre -->
+        <activity
+            android:name=".ring.SendRingActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:theme="@style/Theme.TocToc.Ring">
+            <intent-filter android:autoVerify="false">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="toctoc" android:host="ring" />
+            </intent-filter>
+        </activity>
+
         <!-- Servicio en primer plano que escucha los timbres -->
         <service
             android:name=".service.RingListenerService"
